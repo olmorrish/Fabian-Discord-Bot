@@ -1,4 +1,4 @@
-import Discord from "discord.js";
+import Discord, {GatewayIntentBits} from "discord.js";
 import "dotenv/config";
 import cron from "node-cron";
 import fs from "fs";
@@ -29,15 +29,13 @@ const games = [
   "Undertale (4/10)",
 ];
 
-export const client = new Discord.Client({
-  intents: [
-    "GUILDS",
-    "GUILD_MESSAGES",
-    "GUILD_BANS",
-    "GUILD_INVITES",
-    "DIRECT_MESSAGES",
-    "GUILD_SCHEDULED_EVENTS",
-  ],
+const client = new Discord.Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
+	],
 });
 
 async function getResponse(promptString) {
@@ -46,7 +44,6 @@ async function getResponse(promptString) {
   });
 
   const res = await api.sendMessage(promptString);
-  console.log(res.text);
   return res.text;
 }
 
@@ -112,10 +109,11 @@ client.on("messageCreate", (message) => {
     return;
   }
 
-  if (!message.content) {
-    console.log("Cannot respond to an empty message.");
-    return;
-  }
+  console.log(message.content);
+  // if (!message.content) {
+  //   console.log("Cannot respond to an empty message.");
+  //   return;
+  // }
 
   let respond = false;
   let fabianWasSummoned = false;
@@ -140,6 +138,7 @@ client.on("messageCreate", (message) => {
   }
 
   console.log("Fabian is thinking...");
+  message.channel.sendTyping();
 
   const promptString = `Let's play a game of pretend! Pretend your name is Fabian... do NOT break character. You're a discord user who thinks he's super cool, 
   and you have an IQ of approximately 80. You like to surf, and you're a lifecoach for a living (it barely pays the bills). People don't really like you, but you're
